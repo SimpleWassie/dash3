@@ -7,32 +7,19 @@
     <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
 </head>
 <body>
-    <h1>Flask WebSocket App</h1>
+    <h1>Price Dashboard ver 0.3</h1>
     <div>
-        <label for="api-url">API URL:</label>
-        <input type="text" id="api-url">
-        <button id="query-api">Query API</button>
+        <label for="symbol-input">Enter Ticker:</label>
+        <input type="text" id="symbol-input">
+        <button id="change-symbol">Change Symbol</button>
     </div>
     <div>
-        <label for="message">WebSocket Message:</label>
-        <input type="text" id="message">
-        <button id="send-message">Send Message</button>
+        <h2>Kline Data</h2>
+        <pre id="kline-data"></pre>
     </div>
     <div>
-        <h2>API Response</h2>
-        <table id="api-result" border="1">
-            <thead>
-                <tr>
-                    <th>Key</th>
-                    <th>Value</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-    </div>
-    <div>
-        <h2>WebSocket Response</h2>
-        <p id="ws-response"></p>
+        <h2>Order Book</h2>
+        <pre id="order-book"></pre>
     </div>
 
     <script>
@@ -40,23 +27,33 @@
             var socket = io();
 
             socket.on('response', function(data) {
-                $('#ws-response').text(data.data);
+                console.log(data.data);
             });
 
-            $('#query-api').click(function() {
-                var apiUrl = $('#api-url').val();
-                $.get('/api_query', { url: apiUrl }, function(data) {
-                    var tbody = $('#api-result tbody');
-                    tbody.empty();
-                    $.each(data, function(key, value) {
-                        tbody.append('<tr><td>' + key + '</td><td>' + value + '</td></tr>');
-                    });
+            socket.on('kline_data', function(data) {
+                $('#kline-data').text(JSON.stringify(data, null, 2));
+            });
+
+            socket.on('order_book', function(data) {
+                $('#order-book').text(JSON.stringify(data, null, 2));
+            });
+
+            socket.on('symbol_changed', function(data) {
+                console.log('Symbol changed to: ' + data.symbol);
+            });
+
+            $('#change-symbol').click(function() {
+                var symbol = $('#symbol-input').val();
+                socket.emit('change_symbol', { symbol: symbol });
+                $.ajax({
+                    url: '/change_symbol',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ symbol: symbol }),
+                    success: function(response) {
+                        console.log('Symbol changed to: ' + response.symbol);
+                    }
                 });
-            });
-
-            $('#send-message').click(function() {
-                var message = $('#message').val();
-                socket.emit('custom_event', { data: message });
             });
         });
     </script>
