@@ -1,16 +1,18 @@
 Installation
+
+
 ابتدا پایتون و پیپ را نصب کنید.
 
 
-Clone the Repository:
+Clone the repository:
 
-   bash
-   git clone https://github.com/your-username/flask-binance-dashboard.git
+    bash
+    git clone https://github.com/your-username/dash3.git
 
 Navigate to the Project Directory:
 
     bash
-    cd flask-binance-dashboard
+    cd dash3
 
 Install Dependencies:
 
